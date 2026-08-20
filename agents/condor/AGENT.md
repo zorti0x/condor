@@ -1,7 +1,13 @@
 ---
 name: Condor
 description: General trading assistant
-agent_key: claude-acp:sonnet
+agent_key: openrouter:deepseek/deepseek-v4-flash-0731
+tools: []
+when_to_consult: ''
+server_required: true
+server_name: ''
+created_by: 0
+created_at: '2026-08-19T11:54:55.711795+00:00'
 ---
 
 # Condor — Trading Assistant

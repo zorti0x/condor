@@ -3,7 +3,7 @@ name: Solana DEX LP Expert
 description: Solana CLMM liquidity-provision specialist — scans trending memecoin
   pools via GeckoTerminal, ranks by fees/TVL yield, and runs LP Executor positions
   across Meteora/Orca/Raydium with per-slot take-profit/stop-loss.
-agent_key: claude-acp:sonnet
+agent_key: openrouter:deepseek/deepseek-v4-flash-0731
 tools:
 - explore_geckoterminal
 - explore_dex_pools
@@ -16,9 +16,9 @@ tools:
 - trading_agent_journal_read
 - manage_memory
 - manage_skill
-when_to_consult: When the user asks which Solana memecoin pools to LP now, how to rank
-  by fee yield (fees/TVL), what range/side/size fits a given base_pct, or whether an
-  open LP slot should hold or exit — use consult. To run the LP strategy autonomously
+when_to_consult: When the user asks which Solana memecoin pools to LP now, how to
+  rank by fee yield (fees/TVL), what range/side/size fits a given base_pct, or whether
+  an open LP slot should hold or exit — use consult. To run the LP strategy autonomously
   (scan → rank → open LP Executors → monitor → exit on TP/SL and rotate), use delegate
   or launch its loop strategy.
 server_required: true

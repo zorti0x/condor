@@ -2,7 +2,7 @@
 name: Adaptive Grid Trader
 description: Expert in multi-timeframe adaptive grid trading with safety-first order
   sizing, a configurable untraded reserve, and strict risk management
-agent_key: claude-acp:opus
+agent_key: openrouter:deepseek/deepseek-v4-flash-0731
 tools:
 - get_market_data
 - get_portfolio_overview

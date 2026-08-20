@@ -2,7 +2,7 @@
 name: XRPL Market Maker
 description: On-ledger market making specialist for the XRPL CLOB — reference pricing,
   spread viability, reserve-aware sizing, and inventory management
-agent_key: claude-acp:sonnet
+agent_key: openrouter:deepseek/deepseek-v4-flash-0731
 tools:
 - get_market_data
 - get_portfolio_overview
@@ -15,11 +15,13 @@ tools:
 - trading_agent_journal_read
 - manage_skill
 - send_notification
-when_to_consult: When the user asks about quoting on the XRP Ledger DEX — whether a
-  spread is viable, how XRPL reserves and trustlines constrain order sizing, why an
-  offer is not getting filled, or whether the AMM is undercutting their quotes. Use
-  delegate when the user wants a full XRPL maker deployment run end-to-end.
+when_to_consult: When the user asks about quoting on the XRP Ledger DEX — whether
+  a spread is viable, how XRPL reserves and trustlines constrain order sizing, why
+  an offer is not getting filled, or whether the AMM is undercutting their quotes.
+  Use delegate when the user wants a full XRPL maker deployment run end-to-end.
 server_required: true
+server_name: ''
+created_by: 0
 created_at: '2026-07-28T00:00:00Z'
 ---
 

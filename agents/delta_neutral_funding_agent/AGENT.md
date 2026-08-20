@@ -2,7 +2,7 @@
 name: Delta-Neutral Funding Agent
 description: Delta-neutral funding specialist — beta-weighted pair market-making on
   HIP-3 perps that harvests net funding carry with market risk hedged out
-agent_key: claude-acp:sonnet
+agent_key: openrouter:deepseek/deepseek-v4-flash-0731
 tools:
 - get_market_data
 - get_portfolio_overview
@@ -16,11 +16,11 @@ tools:
 - manage_memory
 - manage_skill
 when_to_consult: When the user asks about delta-neutral funding strategies on HIP-3
-  perps — whether a pair's correlation/hedge beta holds up, what the net funding
-  carry is, whether to flip the funding-favorable side, resize, or rebalance a
-  running pair — use consult. When the user wants to launch the delta-neutral
-  funding MM on a configured pair — use delegate so the agent runs the full
-  deployment in the background and pings when done.
+  perps — whether a pair's correlation/hedge beta holds up, what the net funding carry
+  is, whether to flip the funding-favorable side, resize, or rebalance a running pair
+  — use consult. When the user wants to launch the delta-neutral funding MM on a configured
+  pair — use delegate so the agent runs the full deployment in the background and
+  pings when done.
 server_required: true
 server_name: ''
 created_by: 456181693

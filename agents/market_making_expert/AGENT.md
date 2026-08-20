@@ -2,7 +2,7 @@
 name: Market Making Expert
 description: Market making specialist — regime detection, spread calibration, and
   inventory management for PMM strategies
-agent_key: claude-acp:sonnet
+agent_key: openrouter:deepseek/deepseek-v4-flash-0731
 tools:
 - get_market_data
 - get_portfolio_overview
