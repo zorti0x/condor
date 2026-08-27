@@ -52,11 +52,20 @@ setup-chrome:
 	@uv run python -c "import kaleido; kaleido.get_chrome_sync()" 2>/dev/null || \
 		echo "Chrome setup skipped (not required for basic usage)"
 
+# Reinstall when the lockfile moved, not merely when node_modules is absent:
+# after the first boot the directory always exists, so a pull that adds a
+# dependency would otherwise build against a stale tree and fail. npm rewrites
+# node_modules/.package-lock.json on every install, which makes it the honest
+# record of what is actually installed.
 build-frontend:
 	@bash -c ' \
 		export NVM_DIR="$$HOME/.nvm"; \
 		[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh"; \
-		cd frontend && [ -d node_modules ] || npm ci; \
+		cd frontend || exit 1; \
+		if [ ! -f node_modules/.package-lock.json ] || \
+		   [ package-lock.json -nt node_modules/.package-lock.json ]; then \
+			npm ci || exit 1; \
+		fi; \
 		npm run build \
 	'
 
