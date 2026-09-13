@@ -1053,6 +1053,14 @@ class PydanticAIClient:
             except asyncio.TimeoutError:
                 yield PromptDone(stop_reason="timeout")
             except Exception as e:
+                if "message history contains unprocessed tool calls" in str(e):
+                    # A failed or interrupted tool turn can leave PydanticAI's
+                    # local history structurally incomplete. Discard it so a
+                    # later Telegram message can start a valid turn.
+                    self._message_history.clear()
+                    log.warning(
+                        "Resetting PydanticAI message history after an incomplete tool turn"
+                    )
                 log.exception("PydanticAI prompt error: %s", e)
                 yield TextChunk(text=self._format_error(e))
                 yield PromptDone(stop_reason="error")

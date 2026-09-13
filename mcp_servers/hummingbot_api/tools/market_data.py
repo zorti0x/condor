@@ -15,6 +15,12 @@ from mcp_servers.hummingbot_api.formatters import (
 )
 
 
+def _normalize_connector_name(connector_name: str) -> str:
+    if connector_name == "hyperliquid":
+        return "hyperliquid_perpetual"
+    return connector_name
+
+
 async def get_prices(
     client: Any, connector_name: str, trading_pairs: list[str]
 ) -> dict[str, Any]:
@@ -30,7 +36,8 @@ async def get_prices(
         Dictionary containing prices data and formatted table
     """
     prices = await client.market_data.get_prices(
-        connector_name=connector_name, trading_pairs=trading_pairs
+        connector_name=_normalize_connector_name(connector_name),
+        trading_pairs=trading_pairs,
     )
 
     # Format prices as table
@@ -74,9 +81,11 @@ async def get_candles(
     Raises:
         ValueError: If connector doesn't support candles or interval is invalid
     """
+    request_connector_name = _normalize_connector_name(connector_name)
+
     # Check if connector supports candle data
     available_connectors = await client.market_data.get_available_candle_connectors()
-    if connector_name not in available_connectors:
+    if request_connector_name not in available_connectors:
         raise ValueError(
             f"Connector '{connector_name}' does not support candle data. "
             f"Available connectors: {available_connectors}"
@@ -104,7 +113,7 @@ async def get_candles(
 
     # Fetch candles
     candles = await client.market_data.get_candles(
-        connector_name=connector_name,
+        connector_name=request_connector_name,
         trading_pair=trading_pair,
         interval=interval,
         max_records=max_records,
@@ -140,7 +149,9 @@ async def get_funding_rate(
     Raises:
         ValueError: If connector is not a perpetual connector
     """
-    if "_perpetual" not in connector_name:
+    request_connector_name = _normalize_connector_name(connector_name)
+
+    if "_perpetual" not in request_connector_name:
         raise ValueError(
             f"Connector '{connector_name}' is not a perpetual connector. "
             f"Funding rates are only available for perpetual connectors."
@@ -148,7 +159,7 @@ async def get_funding_rate(
 
     # Fetch funding rate
     funding_rate = await client.market_data.get_funding_info(
-        connector_name=connector_name, trading_pair=trading_pair
+        connector_name=request_connector_name, trading_pair=trading_pair
     )
 
     # Format data
@@ -204,10 +215,12 @@ async def get_order_book(
     Raises:
         ValueError: If query_value is missing for non-snapshot queries
     """
+    request_connector_name = _normalize_connector_name(connector_name)
+
     if query_type == "snapshot":
         # Get full order book snapshot
         order_book = await client.market_data.get_order_book(
-            connector_name=connector_name, trading_pair=trading_pair
+            connector_name=request_connector_name, trading_pair=trading_pair
         )
 
         # Format order book as table
@@ -238,28 +251,28 @@ async def get_order_book(
         # Execute appropriate query
         if query_type == "volume_for_price":
             result = await client.market_data.get_volume_for_price(
-                connector_name=connector_name,
+                connector_name=request_connector_name,
                 trading_pair=trading_pair,
                 price=query_value,
                 is_buy=is_buy,
             )
         elif query_type == "price_for_volume":
             result = await client.market_data.get_price_for_volume(
-                connector_name=connector_name,
+                connector_name=request_connector_name,
                 trading_pair=trading_pair,
                 volume=query_value,
                 is_buy=is_buy,
             )
         elif query_type == "quote_volume_for_price":
             result = await client.market_data.get_quote_volume_for_price(
-                connector_name=connector_name,
+                connector_name=request_connector_name,
                 trading_pair=trading_pair,
                 price=query_value,
                 is_buy=is_buy,
             )
         elif query_type == "price_for_quote_volume":
             result = await client.market_data.get_price_for_quote_volume(
-                connector_name=connector_name,
+                connector_name=request_connector_name,
                 trading_pair=trading_pair,
                 quote_volume=query_value,
                 is_buy=is_buy,
