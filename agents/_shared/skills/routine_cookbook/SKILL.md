@@ -1,7 +1,11 @@
 ---
 name: routine_cookbook
-description: The single reference for writing Condor routines — anatomy, the create → test → fix loop, fetching Hummingbot data, parallel calls, reports/charts, continuous loops, and candlestick charts. Routes to a companion file per topic.
-when_to_use: Before implementing or debugging ANY routine. Read this first, then pull the specific companion file(s) for what your routine actually does (data, async, reports, continuous, charts).
+description: The single reference for writing Condor routines — anatomy, the create
+  → test → fix loop, fetching Hummingbot data, parallel calls, reports/charts, continuous
+  loops, and candlestick charts. Routes to a companion file per topic.
+when_to_use: Before implementing or debugging ANY routine. Read this first, then pull
+  the specific companion file(s) for what your routine actually does (data, async,
+  reports, continuous, charts).
 source: chat
 ---
 

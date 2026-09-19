@@ -2,7 +2,7 @@
 name: Hyperliquid Perp Trader
 description: Autonomous perpetual trader specializing in Hyperliquid directional strategies
   with adaptive risk management
-agent_key: openrouter:anthropic/claude-haiku-4.5
+agent_key: openrouter:deepseek/deepseek-v4-flash-0731
 tools: []
 when_to_consult: When the user wants to deploy, monitor, or adjust autonomous perpetual
   trading strategies on Hyperliquid

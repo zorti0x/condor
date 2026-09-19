@@ -420,6 +420,12 @@ def _tagged_call(controller_id) -> dict:
     return call
 
 
+def _top_level_tagged_call(controller_id) -> dict:
+    call = _create_call()
+    call["input"]["controller_id"] = controller_id
+    return call
+
+
 def test_create_with_a_foreign_controller_id_is_cancelled():
     """A mistyped tag would open a live position no session could ever claim."""
     engine = RiskEngine(RiskLimits())
@@ -438,6 +444,19 @@ def test_create_with_the_sessions_own_controller_id_is_allowed():
     )
 
     outcome = asyncio.run(callback(_tagged_call("acme.scalper_1"), _OPTIONS))
+    assert outcome["outcome"]["outcome"] == "selected"
+
+
+def test_create_with_top_level_controller_id_is_allowed():
+    """The documented manage_executors shape keeps ownership top-level."""
+    engine = RiskEngine(RiskLimits())
+    callback = auto_approve_with_risk_check(
+        engine, RiskState(), agent_id="acme.scalper_1"
+    )
+
+    outcome = asyncio.run(
+        callback(_top_level_tagged_call("acme.scalper_1"), _OPTIONS)
+    )
     assert outcome["outcome"]["outcome"] == "selected"
 
 

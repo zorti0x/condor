@@ -9,6 +9,10 @@ import logging
 from pydantic import BaseModel, Field
 from telegram.ext import ContextTypes
 from config_manager import get_client
+from mcp_servers.hummingbot_api.schemas import ManageExecutorsRequest
+from mcp_servers.hummingbot_api.tools.executors import (
+    manage_executors as create_managed_executor,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -201,6 +205,28 @@ async def _notify(context, chat_id, text: str) -> None:
         logger.warning(f"notify failed: {e}")
 
 
+async def _submit_managed_order(client, cfg, trade_type: str, amount: float, position_action: str):
+    """Submit an order through an owned executor instead of the raw trading API."""
+    request = ManageExecutorsRequest(
+        action="create",
+        executor_type="order_executor",
+        account_name=cfg.account_name,
+        controller_id=f"routine:dynamic_trail:{cfg.trading_pair}",
+        executor_config={
+            "connector_name": cfg.connector,
+            "trading_pair": cfg.trading_pair,
+            "side": 1 if trade_type == "BUY" else 2,
+            "amount": amount,
+            "execution_strategy": cfg.open_order_type if position_action == "OPEN" else "MARKET",
+            "position_action": position_action,
+        },
+    )
+    result = await create_managed_executor(client, request)
+    if result.get("error"):
+        raise RuntimeError(result["error"])
+    return result
+
+
 async def _open_position(client, cfg, mark, st) -> str:
     """Open the perp position in active mode. Returns a human status string."""
     trade_type = "BUY" if cfg.side == "LONG" else "SELL"
@@ -227,11 +253,8 @@ async def _open_position(client, cfg, mark, st) -> str:
         await client.trading.set_leverage(cfg.account_name, cfg.connector, cfg.trading_pair, cfg.leverage)
     except Exception as e:
         logger.warning(f"set_leverage failed (continuing): {e}")
-    resp = await client.trading.place_order(
-        account_name=cfg.account_name, connector_name=cfg.connector,
-        trading_pair=cfg.trading_pair, trade_type=trade_type, amount=cfg.amount,
-        order_type=cfg.open_order_type, position_action="OPEN")
-    fill = (resp or {}).get("filled_price") or (resp or {}).get("average_price") or mark
+    await _submit_managed_order(client, cfg, trade_type, cfg.amount, "OPEN")
+    fill = mark
     st["status"] = "open"; st["entry"] = float(fill or mark); st["best_stop"] = None
     st["last_action_ts"] = time.time()
     st["trade_log"].append({"type": "open", "side": cfg.side, "amount": cfg.amount,
@@ -244,11 +267,8 @@ async def _close_position(client, cfg, amount, st) -> str:
     trade_type = "BUY" if cfg.side == "SHORT" else "SELL"
     if cfg.dry_run:
         return f"DRY-RUN: would CLOSE {cfg.side} {amount} {cfg.trading_pair}"
-    resp = await client.trading.place_order(
-        account_name=cfg.account_name, connector_name=cfg.connector,
-        trading_pair=cfg.trading_pair, trade_type=trade_type, amount=amount,
-        order_type="MARKET", position_action="CLOSE")
-    fill = (resp or {}).get("filled_price") or 0.0
+    await _submit_managed_order(client, cfg, trade_type, amount, "CLOSE")
+    fill = 0.0
     st["status"] = "flat"; st["last_action_ts"] = time.time()
     st["trade_log"].append({"type": "close", "side": cfg.side, "amount": amount,
                             "price": float(fill or 0), "ts": time.time()})

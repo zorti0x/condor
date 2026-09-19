@@ -376,7 +376,15 @@ def auto_approve_with_risk_check(
                 # this tag is what per-session PnL attribution keys on.
                 if action == "create":
                     executor_config = input_data.get("executor_config", {})
-                    tag = str(executor_config.get("controller_id") or "")
+                    # The public manage_executors contract puts controller_id at
+                    # the top level. Accept the legacy nested spelling too so
+                    # older callers remain attributable while new desk calls do
+                    # not get rejected as ownerless.
+                    tag = str(
+                        input_data.get("controller_id")
+                        or executor_config.get("controller_id")
+                        or ""
+                    )
                     if not tag:
                         log.warning("Blocked executor create: missing controller_id")
                         return {"outcome": {"outcome": "cancelled"}}
