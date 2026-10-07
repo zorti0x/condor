@@ -1,11 +1,11 @@
 """
-zbot_company_dashboard — live-updating company overview for the 7-employee
+zbot_company_dashboard — live-updating company overview for the 6-employee
 autonomous trading company (zbot) on the local Hyperliquid server.
 
 Continuous routine. Every tick (default 60s):
   - lists every running trading-agent engine (employee)
   - fetches the Hyperliquid balance from portfolio
-  - rebuilds the 'zbot Company Overview — 7 Employees' report in place,
+  - rebuilds the 'zbot Company Overview — 6 Employees' report in place,
     re-saving with the SAME report_id so browsers reload live data.
 """
 
@@ -32,16 +32,15 @@ ROLE_BY_SLUG = {
     "zbot_eth": "ETH Desk",
     "zbot_sol": "SOL Desk",
     "zbot_charts": "Chartist",
-    "zbot_audit": "Auditor",
     "zbot_hr": "HR",
 }
 
 # Canonical display order — unknown/surprise engines sort to the end.
-DESK_ORDER = ["zbot", "zbot_btc", "zbot_eth", "zbot_sol", "zbot_charts", "zbot_audit", "zbot_hr"]
+DESK_ORDER = ["zbot", "zbot_btc", "zbot_eth", "zbot_sol", "zbot_charts", "zbot_hr"]
 
 
 class Config(BaseModel):
-    """Live zbot company dashboard: 7 employees, updated in place every 60s."""
+    """Live zbot company dashboard: 6 employees, updated in place every 60s."""
     interval_sec: int = Field(default=60, description="Refresh interval (seconds) — sets both the loop cadence and the browser auto-refresh")
 
 
@@ -214,10 +213,9 @@ def _render(report, employees, hl_balance, interval_sec):
     b.kpi("Company net P&L", f"{net:+,.4f}")
     b.table(pnl_rows, ["Desk", "Daily", "Realized", "Unrealized", "Net"])
 
-    # 05 — health & compliance
-    b.section("05 / HEALTH & COMPLIANCE", "HR attendance verdict + auditor baseline")
+    # 05 — health & attendance
+    b.section("05 / HEALTH & ATTENDANCE", "HR attendance verdict")
     hr = next((e for e in employees if e["slug"] == "zbot_hr"), None)
-    au = next((e for e in employees if e["slug"] == "zbot_audit"), None)
 
     def row_for(e):
         return {
@@ -225,13 +223,12 @@ def _render(report, employees, hl_balance, interval_sec):
             "Ticks": e["tick_count"], "Last tick": _fmt_ts(e["last_tick_at"]),
             "Last error": e["last_error"] or "—",
         }
-    hc_rows = [row_for(e) for e in (hr, au) if e]
+    hc_rows = [row_for(hr)] if hr else []
     if hc_rows:
         b.table(hc_rows, ["Unit", "Agent", "State", "Ticks", "Last tick", "Last error"])
 
     hr_verdict = "attendance OK — all employees accounted for" if running == total else f"{total - running} employee(s) not running — HR intervenes"
-    au_baseline = "SL + trailing on every perp, net-of-fees P&L, journal discipline, capital ceiling"
-    b.markdown(f"**HR verdict:** {hr_verdict}\n\n**Auditor baseline (in force):** {au_baseline}")
+    b.markdown(f"**HR verdict:** {hr_verdict}")
 
     # 06 — what is in force
     b.section("06 / WHAT IS IN FORCE", "Active loop configurations carried by each employee")
@@ -251,7 +248,7 @@ def _render(report, employees, hl_balance, interval_sec):
 
 async def run(config: Config, context) -> str:
     report = LiveReport(
-        "zbot Company Overview — 7 Employees",
+        "zbot Company Overview — 6 Employees",
         source_name="zbot_company_dashboard",
         tags=["zbot", "company", "live", "hyperliquid", "dashboard"],
         auto_refresh_seconds=config.interval_sec,
