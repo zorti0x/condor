@@ -722,6 +722,7 @@ class PydanticAIClient:
                 args=args,
                 env=env,
                 timeout=30,
+                max_retries=3,
             )
 
             toolsets.append(mcp_server)

@@ -7,6 +7,7 @@ skill library, and the pydantic-ai tool allowlist.
 """
 
 import asyncio
+from contextlib import asynccontextmanager
 from types import SimpleNamespace
 
 from condor.acp.pydantic_ai_client import PydanticAIClient
@@ -442,6 +443,36 @@ def test_prompt_stream_runs_without_semaphore_for_cloud_providers():
 
     events = _collect_prompt_stream(client)
     assert _prompt_done_reasons(events) == ["end_turn"]
+
+
+def test_mcp_tools_allow_retries_for_transient_errors(monkeypatch):
+    import pydantic_ai
+
+    captured = {}
+
+    class _FakeAgent:
+        def __init__(self, model, *, toolsets, **kwargs):
+            captured["toolsets"] = toolsets
+
+        @asynccontextmanager
+        async def run_mcp_servers(self):
+            yield
+
+    monkeypatch.setattr(pydantic_ai, "Agent", _FakeAgent)
+    client = PydanticAIClient(
+        model="ollama:x",
+        mcp_servers=[{"command": "python", "args": []}],
+    )
+    monkeypatch.setattr(client, "_build_model", lambda: "model")
+
+    async def _run():
+        await client.start()
+        try:
+            assert captured["toolsets"][0].max_retries == 3
+        finally:
+            await client.stop()
+
+    asyncio.run(_run())
 
 
 # ── per-server slot released during human confirmation (PERF-029) ──
