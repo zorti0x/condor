@@ -8,8 +8,8 @@ default_config:
   frequency_sec: 14400
   execution_mode: loop
   trading_context: 'zbot charting desk: charts for BTC-USD, ETH-USD, SOL-USD on hyperliquid_perpetual.
-    Desks trade small (BTC $80, ETH $40, SOL $40). Publish pattern briefs the desks
-    read.'
+    Desks trade small (BTC $100, ETH $35, SOL $35 @ 3x). Publish pattern briefs the
+    desks read.'
   tick_timeout_sec: 900
 default_trading_context: ''
 created_by: 358518143

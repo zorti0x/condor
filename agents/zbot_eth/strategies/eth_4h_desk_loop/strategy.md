@@ -7,12 +7,14 @@ skills: []
 default_config:
   frequency_sec: 14400
   execution_mode: loop
-  total_amount_quote: 40
+  total_amount_quote: 35
   connector_name: hyperliquid_perpetual
-  trading_context: 'Desk: ETH-USD on hyperliquid_perpetual. Desk budget ~$40 usd_notional
-    (cap $60). Company capital ~$160 USDC on Hyperliquid.'
+  trading_context: 'Desk: ETH-USD on hyperliquid_perpetual. Allocation $35 USDC, leverage
+    3x. Confirm available pool margin >= $35 before any entry; if less, SKIP and journal
+    ''margin short''. Reason only about your own allocation — never other desks''
+    books.'
   risk_limits:
-    max_position_size_quote: 60
+    max_position_size_quote: 35
     max_open_executors: 1
     max_drawdown_quote: 20
   tick_timeout_sec: 900
